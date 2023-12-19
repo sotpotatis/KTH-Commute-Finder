@@ -1,0 +1,27 @@
+# Spacefile Docs: https://go.deta.dev/docs/spacefile/v0
+v: 0
+micros:
+  - name: KTH-Commute-Finder
+    src: ./
+    engine: svelte-kit
+    primary: true
+    presets:
+      env:
+          - name: VITE_SL_TRIP_PLANNER_API_KEY
+            description: "The API key to use to access the SL Trip Planner ('Reseplaneraren') API."
+            default: ""
+          - name: VITE_SL_LOCATION_LOOKUP_API_KEY
+            description: "The API key to use to access the SL Location Lookup ('Platsuppslag') API."
+            default: ""
+          - name: VITE_DATABASE_NAME
+            description: "The name of the database to use for cache storage (of schedules and room data). Applicable when using the 'deta' database type."
+            default: "kthCommuteFinder"
+          - name: VITE_KTH_PLACES_API_KEY
+            description: "The API key to use to access the KTH Places API."
+            default: ""
+          - name: VITE_KTH_PLACES_API_USER_AGENT
+            description: "The user agent to use when requesting places from the KTH Places API."
+            default: "JavaScript/KTHCommuteFinder"
+          - name: VITE_DATABASE_TYPE
+            description: "The type of database to use for cache storage (of schedules and room data). 'memory' to use an in-memory database, 'deta' to use a Deta database."
+            default: memory
