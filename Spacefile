@@ -5,6 +5,7 @@ micros:
     src: ./
     engine: svelte-kit
     primary: true
+    public: true
     presets:
       env:
           - name: VITE_SL_TRIP_PLANNER_API_KEY
@@ -25,3 +26,4 @@ micros:
           - name: VITE_DATABASE_TYPE
             description: "The type of database to use for cache storage (of schedules and room data). 'memory' to use an in-memory database, 'deta' to use a Deta database."
             default: memory
+    dev: npm run dev
