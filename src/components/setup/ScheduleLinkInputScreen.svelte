@@ -22,7 +22,7 @@ $: userHasTyped = false
 <h2 class="font-semibold text-lg">Klistra in din <a href="https://www.kth.se/social/home/calendar/settings/" target="_blank" class="decoration-1 underline-offset-4 underline hover:cursor-pointer">KTH-schemalänk</a> nedan:</h2>
 <TextInput placeholder="Din KTH-schemalänk..." value={scheduleLink} disabled={loading || scheduleLinkValid} loading={loading} errorMessage={
 scheduleLinkValid === false  && scheduleLinkValidated ? "Ogiltig schemalänk. Försök igen.": null
-}  loadingMessage="Försöker hämta ditt schema..." error={!scheduleLinkValid && userHasTyped} success={scheduleLinkValid}
+}  loadingMessage="Försöker hämta ditt schema..." error={!scheduleLinkValid && userHasTyped && !loading} success={scheduleLinkValid}
 on:input={(event)=>{ // On schedule link
     const newScheduleLink = event.target.value
     userHasTyped = true
@@ -62,15 +62,12 @@ on:input={(event)=>{ // On schedule link
         catch (e) {
           console.log(`Failed to validate schedule link: is not a valid URL.`)
           scheduleLinkValid = false
+          scheduleLinkValidated = true
         }
         },
         1000
     )
 
 }}>
-    <!-- Add help link if schedule is not valid -->
-    {#if scheduleLinkValid === false && scheduleLinkValidated}
-        <!-- TODO -->
-    {/if}
 </TextInput>
 </div>

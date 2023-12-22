@@ -18,6 +18,7 @@ A button with different styles, sizes, etc. etc. -->
     export let size = "medium"
     const SIZES_TO_CLASSES = {
         small: "p-1",
+        text: "text-base", // Make the button have the same size and behavior as text (no padding for example)
         medium: "px-3 py-1 text-lg",
         big: "px-6 py-3 text-xl font-bold"
     }

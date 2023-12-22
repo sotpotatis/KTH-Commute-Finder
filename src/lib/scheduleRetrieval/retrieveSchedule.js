@@ -1,7 +1,7 @@
 /* retrieveSchedule.js
 Contains some code for retrieving schedules.
 */
-import * as ical from "node-ical"
+import ical from "node-ical"
 import {DateTime, Interval} from "luxon";
 import {calendarTimeToLuxon} from "./parsing.js";
 

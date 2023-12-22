@@ -9,6 +9,9 @@ such as what stations has been saved.
     import TravelMethodPreferencesSettings from "./TravelMethodPreferencesSettings.svelte";
     import {Settings} from "../../lib/settings.js";
     import ScheduleLinkSettings from "./ScheduleLinkSettings.svelte";
+    import Icon from "@iconify/svelte";
+    import Button from "../generic/Button.svelte";
+    import ApplicationCredits from "../generic/ApplicationCredits.svelte";
     const dispatch = createEventDispatcher()
     $: settings = new Settings().getProxy()
     onMount(()=>{
@@ -27,3 +30,5 @@ such as what stations has been saved.
 <StationSettings settings={settings}/>
 <!-- Add settings for travel method preferences -->
 <TravelMethodPreferencesSettings settings={settings}/>
+<!-- Add short credit information -->
+<ApplicationCredits/>

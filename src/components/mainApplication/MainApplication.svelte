@@ -11,6 +11,11 @@ Includes code for the main application - getting your schedule and then suggeste
     import TripDetailsView from "./trip/TripDetailsView.svelte";
     import SettingsButton from "../settings/SettingsButton.svelte";
     import SettingsView from "../settings/SettingsView.svelte";
+    const SCHEDULE_VIEW_STEP_NUMBER = 1
+    const LOCATION_SELECTOR_STEP_NUMBER = 2
+    const STATION_SELECTOR_STEP_NUMBER = 3
+    const TIME_PICKER_STEP_NUMBER = 4
+    const TRIP_DETAILS_STEP_NUMBER = 5
     $: settings = new Settings().getProxy()
     $: currentStep = 1; // Track where in the application that we are
     $: settingsMenuActive = false // Tracks if the fullscreen settings menu is opened
@@ -33,11 +38,17 @@ Includes code for the main application - getting your schedule and then suggeste
             currentStep -= 2
         }
         // Reset variables
-        selectedScheduleEvent = null
-        selectedStart = null
-        selectedDestination = null
-        selectedTrip = null
-        currentEventHasMultipleRooms =  null
+        if (currentStep < TRIP_DETAILS_STEP_NUMBER){
+            selectedTrip = null
+            if (currentStep < STATION_SELECTOR_STEP_NUMBER){
+                selectedStart = null
+            }
+            if (currentStep < LOCATION_SELECTOR_STEP_NUMBER){
+                selectedScheduleEvent = null
+                currentEventHasMultipleRooms =  null
+                selectedDestination = null
+            }
+        }
     }
 </script>
 {#if settingsMenuActive === false}

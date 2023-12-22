@@ -23,7 +23,8 @@ as asks for details. -->
         {
             id: "enter_schedule_link",
             title: "Hej!",
-            description: "Du är bara några steg bort från att resa smartare och klicka mindre."
+            description: "Du är bara några steg bort från att resa smartare och klicka mindre.",
+            nextButtonLocked: (()=>{return settings == null || settings.scheduleURL === null})
         },
         {
             id: "add_stations",
@@ -53,7 +54,7 @@ as asks for details. -->
     $: isLastSetupStep = setupStep === TOTAL_SETUP_STEPS
     // For whether to "lock" the next button or not, a function can optionally be defined to check that.
     // This is to avoid for example going back in the settings menu and getting stuck in a "lock trap"
-    $: nextButtonLocked = activeSetupScreen.nextButtonLocked !== undefined ? activeSetupScreen.nextButtonLocked() : !activeSetupScreen.isSkippable && !setupStep === SETUP_STEPS.length
+    $: nextButtonLocked = activeSetupScreen.nextButtonLocked !== undefined ? activeSetupScreen.nextButtonLocked() : !activeSetupScreen.isSkippable && setupStep !== SETUP_STEPS.length
 
     const dispatch = createEventDispatcher() // So we can dispatch event for when setup is done
     // Create functions
@@ -114,7 +115,7 @@ see the defaults in the TitleAndDescription component -->
                     subdescription={activeSetupScreen.subdescription}/>
 <!-- Render the active screen -->
 {#if activeSetupScreen.id === "enter_schedule_link"}
-    <ScheduleLinkInputScreen on:schedulelink={(event)=>{
+    <ScheduleLinkInputScreen filledInLink={settings.scheduleURL} on:schedulelink={(event)=>{
     handleScheduleLinkSetting(event, settings)
        nextButtonLocked = false
     }}/>

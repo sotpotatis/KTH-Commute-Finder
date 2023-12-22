@@ -14,7 +14,7 @@ const DEFAULT_USER_SETTINGS = {
  */
 export function getUserSettings(){
     try {
-        const userSettingsValue = browser && localStorage.getItem(USER_SETTINGS_LOCAL_STORAGE_KEY)
+        const userSettingsValue = localStorage.getItem(USER_SETTINGS_LOCAL_STORAGE_KEY)
         if (userSettingsValue !== null) {
             console.log("Loaded user settings from local storage:", userSettingsValue)
             return JSON.parse(userSettingsValue)

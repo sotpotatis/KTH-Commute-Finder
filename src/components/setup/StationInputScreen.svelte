@@ -3,7 +3,10 @@ Handles the input/selection of the user's favorite stations.
 -->
 <script>
     import TextInput from "../generic/TextInput.svelte";
-    import * as Promise from "bluebird"; // Used for promise cancellation
+     // Modules used for promise cancellation
+    // Bluebird: import Promise from "bluebird/js/release/bluebird";
+    import AbortablePromise from "promise-abortable";
+    // -----
     import {createEventDispatcher} from "svelte";
     import APIWrapper from "../../lib/websiteAPI/api.js";
     import Badge from "../generic/Badge.svelte";
@@ -27,7 +30,8 @@ Handles the input/selection of the user's favorite stations.
     }
     const api = new APIWrapper()
     let promises = [] // Store other pending searches
-    Promise.config({cancellation: true})
+    // Bluebird: Promise.config({cancellation: true})
+    new AbortablePromise((resolve, reject, signal)=>{}) // Somehow needed for Rollup to pick up that we're using this module
 </script>
 {#if showSearchBox}
     <TextInput
@@ -41,15 +45,20 @@ Handles the input/selection of the user's favorite stations.
             if (searchQuery.length >= 3){
                 // Remove previous promises
                 for (const promise of promises){
-                    promise.cancel()
+                    // Bluebird: promise.cancel()
+                    promise.abort()
                 }
                 // Start new search
-                const search = new Promise((resolve, reject, onCancel)=>{
+               // Bluebird = const search = new Promise((resolve, reject,onCancel)=>{
+                const search = new AbortablePromise((resolve, reject, signal)=>{
                     let promiseCancelled = false
                     // Tracks if the promise has been cancelled
                     // Probably a very hacky way to avoid older promises
                     // "getting in the way of" search results.
-                    onCancel(()=>promiseCancelled=true)
+                    // Bluebird onCancel(()=>promiseCancelled=true)
+                    signal.onabort = (reason)=>{
+                        console.debug("Cancelling search-related  promise...")
+                        promiseCancelled = true}
                     loading = true
                     const searchPromise = api.findStation(searchQuery)
                     searchPromise.then(([requestSuccessful, responseData])=>{

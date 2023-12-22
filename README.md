@@ -9,6 +9,9 @@ with relevant trips for whenever *you* want to arrive on campus!
 
 It also includes customizable walking times for each building that the application suggests.
 
+### Configuring
+
+You need some environment variables, please see the [.env.example](.env.example) file.
 ### Developing
 
 **Using Deta**
@@ -23,4 +26,6 @@ to get a development environment.
 
 You have to adjust the *caching* code a little bit, since it is built around Deta's libraries :D But then, you can just run
 
-`yarn run dev`
+`npm run dev`
+
+You can optionally set `VITE_DATABASE_TYPE` to `memory` to use an in-memory cache.

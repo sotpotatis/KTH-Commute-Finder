@@ -9,11 +9,12 @@ Searchs for trips and shows the available times.
     import TimeBadge from "../time/TimeBadge.svelte";
     import {Settings} from "../../../lib/settings.js";
     import {DateTime, Duration} from "luxon";
-    import {lastListElement} from "../../../lib/utils.js";
+    import {getNow, lastListElement, passClassList} from "../../../lib/utils.js";
     import Button from "../../generic/Button.svelte";
     import WalkTimeSetter from "../time/WalkTimeSetter.svelte";
     import TripSummary from "../trip/TripSummary.svelte";
     import {API_TRAVEL_METHOD_TYPES, PRODUCT_TYPE_TO_API_TYPE} from "../../../lib/slAPI/sl.js";
+    import IconButton from "../../generic/IconButton.svelte";
     export let scheduleEvent; // The requested schedule event
     export let startStation;
     export let destinationRoom; // The location to search SL trips for
@@ -25,6 +26,15 @@ Searchs for trips and shows the available times.
     $: loading = false
     $: error = false
     $: foundTrips = []
+    $: tripsWrapper = null
+    // There are also two different ways to select trips: either by avant-garde horizontal scrolling, or classic
+    // vertical scrolling.
+    $: scrollModeIsHorizontal = true
+    const toggleScrollMode = (targetValue)=> {
+        console.log(`Changing scroll mode to ${targetValue? "horizontal": "vertical"}...`)
+        scrollModeIsHorizontal = targetValue
+        scrollToAssociatedTrip()
+    }
     $: selectedTrip = null
     // If the user decided to change the walk time from what was initially set,
     // use that instead of what the API returned
@@ -76,7 +86,19 @@ Searchs for trips and shows the available times.
                     console.warn("No trips were found!")
                 }
                 else {
-                    selectedTrip = foundTrips[Math.floor(foundTrips.length/2)] // Initially select the middle trip
+                    // Initially select the trip that arrives approximately 15 minutes before event start
+                    selectedTrip = foundTrips[0]
+                    const targetTripArrivalTime = DateTime.fromISO(scheduleEvent.start).setZone("Europe/Stockholm").minus({minutes: 15})
+                    for (const foundTrip of foundTrips){
+                        const foundTripArrivalTime = DateTime.fromISO(selectedTrip.arriveAt.destination).setZone("Europe/Stockholm")
+                        if (targetTripArrivalTime >= foundTripArrivalTime){
+                            console.log("Found appropriate middle trip!")
+                                selectedTrip = foundTrip
+                        }
+                    }
+                    if (selectedTrip === foundTrips[0]){
+                        console.warn("Looks like I didn't find an appropriate middle trip.")
+                    }
                 }
             }
             else {
@@ -88,18 +110,25 @@ Searchs for trips and shows the available times.
             error = true
         })
     }
+    const scrollToAssociatedTrip = () => {
+        console.log("Trying to scroll to the associated trip.")
+        if (tripsWrapper === null){
+            console.log("...nevermind, the trips wrapper doesn't seem to be available yet!")
+            return
+        }
+        for (const element of tripsWrapper.children) {
+            const associatedTrip = JSON.parse(element.dataset.associatedtrip)
+            if (associatedTrip === selectedTrip) {
+                console.log("Found selected trip, scrolling to it...")
+                element.scrollIntoView()
+            }
+    }}
     onMount(()=>{
         // Load the value of the user settings from localstorage
         settings.loadFromLocalStorage()
         findTrips()
+        scrollToAssociatedTrip()
     })
-        const scrollToTripIfSelected = (element) => {
-            const associatedTrip = JSON.parse(element.dataset.associatedtrip)
-            if (associatedTrip === selectedTrip){
-                console.log("Found selected trip, scrolling to it...")
-                element.scrollIntoView()
-            }
-        }
 </script>
 {#if loading && !error}
     <LoadingSpinner size="big" message="Söker resor..."/>
@@ -146,14 +175,31 @@ Searchs for trips and shows the available times.
         findTrips()
     }}
     />
+    <div class="grid grid-cols-2">
     <h2 class="text-2xl font-bold py-3">När vill du vara framme?</h2>
-    <p>Skrolla åt höger eller vänster för att hitta önskad ankomsttid i listan nedan.</p>
+        <!-- Allow user to change the scroll mode if wanted -->
+        <div class="flex flex-row gap-x-4">
+            <IconButton circular={false} backgroundColor={scrollModeIsHorizontal ? "indigo": "gray"} iconName="ic:round-view-column" on:click={
+            ()=>{toggleScrollMode(true)}
+            }/>
+            <IconButton circular={false} backgroundColor={!scrollModeIsHorizontal ? "indigo": "gray"} iconName="ph:list-fill" on:click={ ()=>{toggleScrollMode(false)}
+}/>
+        </div>
+    </div>
+    <p>
+        Skrolla {#if scrollModeIsHorizontal}åt höger eller vänster{:else}nedåt{/if} för att hitta önskad ankomsttid i listan nedan.</p>
     <!-- Render all the times for the found trips -->
-    <div class="flex flex-row wrap-0 min-w-screen p-2 gap-x-2 snap-x overflow-x-scroll">
+    <div class={
+    passClassList([
+        "flex wrap-0 min-w-screen p-2 gap-x-2 gap-y-2",
+        scrollModeIsHorizontal ? "flex-row overflow-x-scroll snap-x": "flex-col overflow-y-scroll snap-y"
+        ])
+    } bind:this={tripsWrapper}>
         {#each foundTrips as foundTrip}
-        <div class="snap-normal snap-center" data-associatedTrip={JSON.stringify(foundTrip)} use:scrollToTripIfSelected>
+        <div class="snap-normal snap-center" data-associatedTrip={JSON.stringify(foundTrip)}>
             <TimeBadge
                 isSelected={foundTrip === selectedTrip}
+                optimizeForHorizontalScroll={scrollModeIsHorizontal}
                 overridenWalkingTime={correctedWalkTime}
                 tripData={foundTrip}
                 scheduleEventStart={

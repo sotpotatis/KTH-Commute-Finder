@@ -8,6 +8,7 @@ What the name says. A clickable button. -->
     export let backgroundColor = null; // Allow defining a background color
     export let noBorder = false; // Allow disabling border (only applicable if background color has been set)
     export let size = "medium"
+    export let circular = true; // Allow making the button less rounded
     export let extraClasses = null
     // Set a custom button type, e.g. for forms
     export let buttonType = null
@@ -18,6 +19,8 @@ What the name says. A clickable button. -->
     const BACKGROUND_COLORS_TO_CLASSES = {
         blue: "bg-blue-400 text-white",
         yellow: "bg-yellow-500 ring-yellow-700",
+        gray: "bg-gray-400 ring-gray-500",
+        indigo: "bg-indigo-500 ring-indigo-700",
         red: "bg-red-500 ring-red-700"
     }
     // Define font sizes
@@ -34,7 +37,7 @@ What the name says. A clickable button. -->
 ]
     if (backgroundColor !== null){
          classesToApply.push(BACKGROUND_COLORS_TO_CLASSES[backgroundColor])
-        classesToApply.push(`rounded-full ${noBorder? "ring-2 ": ""}p-1`) // Add background specific classes
+        classesToApply.push(...[`${circular ? "rounded-full" : "rounded-lg"}`,`${noBorder? "ring-2 ": ""}`, "p-1"]) // Add background specific classes
     }
 
 </script>

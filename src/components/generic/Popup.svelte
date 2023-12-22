@@ -30,5 +30,4 @@ Defines a generic popup. The popup appears in the middle of the page.
         </div>
             </div>
     </div>
-    {:else}
 {/if}

@@ -12,6 +12,7 @@ A badge that shows a time for the time picker.
     import Popup from "../../generic/Popup.svelte";
     export let tripData; // The trip data that is associated with the badge.
     export let isSelected;
+    export let optimizeForHorizontalScroll; // Optimize for two scrolling modes
     export let scheduleEventStart; // When the schedule event starts as a luxon.DateTime instance.
     export let overridenWalkingTime = null; // Walking time set by/overriden by the user, if any
     // NOTE: it is not ideal to parse the trip data in this component, but the rendering template
@@ -38,7 +39,8 @@ A badge that shows a time for the time picker.
     // Generate classes to apply
     $: classesToApply = [
         "font-bold text-white px-3 text-3xl py-1 rounded-lg hover:cursor-pointer hover:opacity-75",
-        isSelected ? "bg-purple-600": "bg-gray-600"
+        isSelected ? "bg-purple-600": "bg-gray-600",
+        !optimizeForHorizontalScroll ? "w-2/3" : "w-full"
     ]
     // Create event dispatcher
     const dispatch = createEventDispatcher()
@@ -52,8 +54,9 @@ A badge that shows a time for the time picker.
 {#if isAfterStartTime || isAq}
     <!-- Add a button and a popup for the two possible warnings -->
     <IconButton backgroundColor={isAq ? "yellow": "red"} iconName={isAq ? "mdi:clock-warning": "mdi:clock-remove"}  on:click={()=>{
-        console.log("Showing pipuåp")
-        showPopup = true}} size="base" extraClasses={ ["absolute bottom-[-2em] right-0 rounded-full ring-2 text-white"
+        showPopup = true}} size="base" extraClasses={ [
+            optimizeForHorizontalScroll ? "absolute bottom-[-2em] right-0 ": "block mt-3 mx-3",
+            "rounded-full ring-2 text-white"
     ]}/>
     <!-- Show popup with information -->
         {#if showPopup}

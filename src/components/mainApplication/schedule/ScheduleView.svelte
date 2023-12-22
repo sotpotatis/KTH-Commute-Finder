@@ -117,19 +117,22 @@ Shows the user's current schedule.
     <div class="text-left md:text-center m-12">
     <div class="flex flex-row gap-x-2">
         <!-- Add button to go to previous day -->
-        <IconButton hidden={currentPickedDayIndex > 1} iconName="mingcute:left-line" size="medium" on:click={()=>{
+        {#if currentPickedDayIndex > 1}
+        <IconButton iconName="mingcute:left-line" size="medium" on:click={()=>{
             console.log("Going to previous day in schedule...")
             currentPickedDayIndex -= 1
             groupedScheduleEvents = {} // Reset the grouped schedule events
         }}/>
-
+        {/if}
     <h2 class="text-2xl font-bold py-4">{!currentPickedDateIsToday? currentPickedDayText: "Dagens schema" }</h2>
     <!-- ...and add a button to next day -->
-    <IconButton hidden={currentPickedDayIndex < Object.keys(scheduleEvents).length} iconName="mingcute:right-line" size="medium" on:click={()=>{
-        console.log("Going to next day in schedule...")
-        currentPickedDayIndex += 1
-        groupedScheduleEvents = {} // Reset the grouped schedule events
-    }}/>
+    {#if scheduleEventDays[currentPickedDayIndex] !== undefined}
+            <IconButton iconName="mingcute:right-line" size="medium" on:click={()=>{
+                console.log("Going to next day in schedule...")
+                currentPickedDayIndex += 1
+                groupedScheduleEvents = {} // Reset the grouped schedule events
+            }}/>
+            {/if}
     </div>
     <div class="flex flex-col items-left justify-left md:items-center md:justify-center">
         {#each Object.values(groupedScheduleEvents) as hourScheduleEvents}

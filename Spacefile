@@ -3,7 +3,7 @@ v: 0
 micros:
   - name: KTH-Commute-Finder
     src: ./
-    engine: svelte-kit
+    engine: nodejs16
     primary: true
     public: true
     presets:
@@ -26,4 +26,7 @@ micros:
           - name: VITE_DATABASE_TYPE
             description: "The type of database to use for cache storage (of schedules and room data). 'memory' to use an in-memory database, 'deta' to use a Deta database."
             default: memory
+    include:
+      - ./build
     dev: npm run dev
+    run: node ./build/index.js --experimental-modules

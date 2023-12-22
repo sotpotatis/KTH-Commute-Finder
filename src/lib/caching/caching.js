@@ -108,7 +108,7 @@ export async function getCachedSchedule(scheduleURL){
         // If we should re-sync stuff
         console.log(`Getting schedule from KTH API...`)
         try {
-            const rawScheduleData = await retrieveRawSchedule(scheduleURL)
+            rawScheduleData = await retrieveRawSchedule(scheduleURL)
             if (rawScheduleData === null){
                 return null
             }
