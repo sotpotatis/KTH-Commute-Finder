@@ -29,13 +29,13 @@ What the name says. A clickable button. -->
         medium: "text-2xl",
         big: "text-4xl"
     }
-    let classesToApply = [
+    $: classesToApply = [
         ...(extraClasses !== null ? extraClasses : []), // Extra classes have the highest priority
     COLORS_TO_CLASSES[color],
      SIZES_TO_CLASSES[size],
     "font-bold hover:cursor-pointer max-w-min"
 ]
-    if (backgroundColor !== null){
+    $: if (backgroundColor !== null){
          classesToApply.push(BACKGROUND_COLORS_TO_CLASSES[backgroundColor])
         classesToApply.push(...[`${circular ? "rounded-full" : "rounded-lg"}`,`${noBorder? "ring-2 ": ""}`, "p-1"]) // Add background specific classes
     }

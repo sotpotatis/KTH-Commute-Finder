@@ -9,12 +9,12 @@ Searchs for trips and shows the available times.
     import TimeBadge from "../time/TimeBadge.svelte";
     import {Settings} from "../../../lib/settings.js";
     import {DateTime, Duration} from "luxon";
-    import {getNow, lastListElement, passClassList} from "../../../lib/utils.js";
+    import {lastListElement, passClassList} from "../../../lib/utils.js";
     import Button from "../../generic/Button.svelte";
     import WalkTimeSetter from "../time/WalkTimeSetter.svelte";
     import TripSummary from "../trip/TripSummary.svelte";
     import {API_TRAVEL_METHOD_TYPES, PRODUCT_TYPE_TO_API_TYPE} from "../../../lib/slAPI/sl.js";
-    import IconButton from "../../generic/IconButton.svelte";
+    import Icon from "@iconify/svelte";
     export let scheduleEvent; // The requested schedule event
     export let startStation;
     export let destinationRoom; // The location to search SL trips for
@@ -35,6 +35,8 @@ Searchs for trips and shows the available times.
         scrollModeIsHorizontal = targetValue
         scrollToAssociatedTrip()
     }
+    $: scrollModeButtonColors = [scrollModeIsHorizontal ? "indigo": "gray",
+    !scrollModeIsHorizontal ? "indigo": "gray"]
     $: selectedTrip = null
     // If the user decided to change the walk time from what was initially set,
     // use that instead of what the API returned
@@ -175,15 +177,19 @@ Searchs for trips and shows the available times.
         findTrips()
     }}
     />
-    <div class="grid grid-cols-2">
+    <div class="flex flex-row gap-x-2">
     <h2 class="text-2xl font-bold py-3">När vill du vara framme?</h2>
         <!-- Allow user to change the scroll mode if wanted -->
         <div class="flex flex-row gap-x-4">
-            <IconButton circular={false} backgroundColor={scrollModeIsHorizontal ? "indigo": "gray"} iconName="ic:round-view-column" on:click={
+            <!-- Comment: Icon button reactivity doesn't work as expected here, TODO is to fix that -->
+            <Button color={scrollModeButtonColors[0]} on:click={
             ()=>{toggleScrollMode(true)}
-            }/>
-            <IconButton circular={false} backgroundColor={!scrollModeIsHorizontal ? "indigo": "gray"} iconName="ph:list-fill" on:click={ ()=>{toggleScrollMode(false)}
-}/>
+            } extraClasses={["p-1"]}>
+                <Icon icon="ic:round-view-column"/>
+            </Button>
+            <Button color={scrollModeButtonColors[1]} on:click={ ()=>{toggleScrollMode(false)}} extraClasses={["p-1"]}>
+                                <Icon icon="ph:list-fill"/>
+            </Button>
         </div>
     </div>
     <p>

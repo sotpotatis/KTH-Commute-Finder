@@ -2,7 +2,7 @@
 * Various parsing utilities related to parsing and extracting data from schedules
 * - for example parsing building names, prettifying output etc. */
 import {DateTime} from "luxon";
-import {getRoomData} from "../caching/caching.js";
+import {getRoomData, getRoomsData} from "../caching/caching.js";
 import {findBuildingsFromRooms} from "../kthPlacesAPI/api.js";
 
 const EVENT_TITLE_TRIMMING_REGEX = /\([a-ö0-9]+\)|(se beskrivning)|(see description)|\.|\n/ig // (i = case insensitive)
@@ -122,12 +122,12 @@ export function parseSummary(summaryText){
 const STREET_REGEX = /(gat(an*|o[a-ö]+)|väg|back[a-ö]+|ringen)/ig
 
 /**
- * Parses the location data of a certain event. Removes street addresses
+ * Parses the location names of a certain event. Removes street addresses
  * and also extracts buildings.
  * @param location The location string of the event.
  * @return {*}
  */
-export async function parseLocations(location){
+export async function parseLocationNames(location){
     // Parse locations
     const locations = location.split(",")
     let parsedLocations = {
@@ -140,36 +140,71 @@ export async function parseLocations(location){
         // anyways, so it is extra information basically)
         let trimmedLocation = location.trim()
         if (!trimmedLocation.match(STREET_REGEX)){
-            // Look up the building and other information for the room
-            const roomData = await getRoomData(trimmedLocation)
-            let locationInformation = {dataAvailable: false, information: null}
-            // The function above returns null if data is not found
-            if (roomData !== null){
-                console.log(`Found information for room ${trimmedLocation}`)
-                locationInformation.dataAvailable = true
-                locationInformation.information = { // Add information. We expect this from the API
-                    roomName: location,
-                    roomId: roomData.roomId,
-                    roomType: roomData.roomType,
-                    location: {
-                        latitude: roomData.geoData.lat,
-                        longitude: roomData.geoData.long,
-                        floor: Number(roomData.floor),
-                        buildingName: roomData.buildingName,
-                        campus: roomData.campus,
-                        address: `${roomData.streetAddress} ${roomData.streetNumber}`
-                    }
-                }
-            }
-            else {
-                console.warn(`Did not find room data for ${trimmedLocation}.`)
-            }
-            parsedLocations.rooms.push(locationInformation)
+            parsedLocations.rooms.push(trimmedLocation)
         }
     }
-    // ...update the building informations
-    parsedLocations.buildings = findBuildingsFromRooms(parsedLocations.rooms)
+
     return parsedLocations
+}
+
+/**
+ * Fills out the location information for a list of schedule events by quering data for wanted rooms.
+ * @param scheduleEvents A list of schedule events.
+ * @return {Promise<[]>}
+ */
+export async function fillOutLocationInformationForEvents(scheduleEvents){
+    // Get all the unique location keys
+    const uniqueLocations = []
+    for (const scheduleEvent of scheduleEvents){
+        for (const location of scheduleEvent.location.rooms){
+            const trimmedLocation = location.trim()
+            if (!uniqueLocations.includes(trimmedLocation)){
+                uniqueLocations.push(trimmedLocation)
+            }
+        }
+    }
+    const parsedLocationData = {} // Lookup table: location --> parsed data
+    // Look up all the buildings and other information for each room
+    const roomsData = await getRoomsData(uniqueLocations)
+    for (const roomName of uniqueLocations){
+        let locationInformation = {dataAvailable: false, information: null}
+        const roomData = roomsData[roomName] // The value will be null if data is not found
+        if (roomData !== undefined && roomData !== null){
+            locationInformation.dataAvailable = true
+            locationInformation.information = { // Add information. We expect this from the API
+                roomName: roomData.roomName,
+                roomId: roomData.roomId,
+                roomType: roomData.roomType,
+                location: {
+                    latitude: roomData.geoData.lat,
+                    longitude: roomData.geoData.long,
+                    floor: Number(roomData.floor),
+                    buildingName: roomData.buildingName,
+                    campus: roomData.campus,
+                    address: `${roomData.streetAddress} ${roomData.streetNumber}`
+                }
+            }
+            console.log(`Found and added room information for ${roomName}.`)
+        }
+        else {
+            console.warn(`Did not find room data for ${roomName}!`)
+        }
+        parsedLocationData[roomName] = locationInformation
+    }
+    // Fill in all schedule events with this new information
+    let updatedScheduleEvents = []
+    for (const scheduleEvent of scheduleEvents){
+        let updatedScheduleEvent = JSON.parse(JSON.stringify(scheduleEvent)) // Copy data for the schedule event
+        if (scheduleEvent.location !== undefined  && (scheduleEvent.location !== null)){
+            for (let i=0;i<scheduleEvent.location.rooms.length;i++){
+                updatedScheduleEvent.location.rooms[i] = parsedLocationData[scheduleEvent.location.rooms[i]]
+            }
+            // ...update the building information
+            updatedScheduleEvent.location.buildings = findBuildingsFromRooms(updatedScheduleEvent.location.rooms)
+        }
+        updatedScheduleEvents.push(updatedScheduleEvent)
+    }
+    return updatedScheduleEvents
 }
 
 /**
@@ -187,22 +222,37 @@ export function calendarTimeToLuxon(calendarTime){
  * to a JSON- and user-friendly object with the data that we want.
  * @param calendarEvent The calendar event as output from node-ical.
  */
-export async function parseEvent(calendarEvent){
+export async function parseEvent(calendarEvent) {
     let parsedEventData = {}
     // Parse the summary...
     parsedEventData.summary = parseSummary(calendarEvent.summary)
     // ...then the location...
-    if (calendarEvent.location !== undefined){
-    parsedEventData.location = await parseLocations(calendarEvent.location)
-    }
-    else {
+    if (calendarEvent.location !== undefined) {
+        parsedEventData.location = await parseLocationNames(calendarEvent.location)
+    } else {
         console.warn("Missing location data for calendar event", calendarEvent)
-    parsedEventData.location = null
-        }
+        parsedEventData.location = null
+    }
     // ...add start and end times...
     parsedEventData.start = calendarTimeToLuxon(calendarEvent.start)
     parsedEventData.end = calendarTimeToLuxon(calendarEvent.end)
     parsedEventData.date = parsedEventData.start.toISODate()
     // ...and then we have everything that we need!
     return parsedEventData
+}
+
+/**
+ * Parses multiple schedule events and also loads their location data.
+ * @param calendarEvents The list of the calendar events to parse.
+ * @return {Promise<void>} A promise that can be awaited for the data of the final parsed events with their
+ * respective location data filled out.
+ */
+export async function parseEvents(calendarEvents){
+    let parsedEventsData = []
+    for (const calendarEvent of calendarEvents){
+        parsedEventsData.push(await parseEvent(calendarEvent))
+    }
+    // Load data (location information) from the API for all schedules
+    parsedEventsData = await fillOutLocationInformationForEvents(parsedEventsData)
+    return parsedEventsData
 }

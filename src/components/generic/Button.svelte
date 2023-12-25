@@ -10,6 +10,7 @@ A button with different styles, sizes, etc. etc. -->
     const COLOR_TO_CLASSES = { // Mapping: button color name --> classes to apply
         green: "bg-emerald-400 text-white border-emerald-500",
         gray: "bg-slate-300 text-gray-600 border-slate-400",
+        indigo: "bg-indigo-400 border-indigo-500",
         red: "bg-red-400 text-white border-red-500",
         yellow: "bg-amber-300 text-white border-amber-500",
         blue: "bg-blue-400 text-white border-blue-500",
@@ -23,6 +24,8 @@ A button with different styles, sizes, etc. etc. -->
         big: "px-6 py-3 text-xl font-bold"
     }
     $: classesToApply = [
+        // Add any classes passed by the user. Put them first to ensure priority
+        ...((extraClasses !== null && extraClasses !== undefined) ? extraClasses: []),
         COLOR_TO_CLASSES[color],
         SIZES_TO_CLASSES[size],
         "max-w-fit",
@@ -31,8 +34,6 @@ A button with different styles, sizes, etc. etc. -->
         !circular ? "rounded-lg": "rounded-full",
         "disabled:opacity-70",
         "disabled:cursor-not-allowed",
-        // Add any classes passed by the user
-        ...((extraClasses !== null && extraClasses !== undefined) ? extraClasses: []),
         // The "link" color has no border
         color !== "link" ? "border-2": "underline",
         multipleItems ? "flex gap-x-2 flex-row items-center": ""

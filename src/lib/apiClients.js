@@ -4,7 +4,7 @@ import SL from "sl-api"
 import {SLAPIWrapper} from "./slAPI/sl.js";
 import {Deta} from "deta";
 import NodeCache from "node-cache";
-// Create SL API wrapper
+import { Client} from "faunadb";// Create SL API wrapper
 export const slWrapper = new SL({
     tripPlanner: import.meta.env.VITE_SL_TRIP_PLANNER_API_KEY,
     locationLookup: import.meta.env.VITE_SL_LOCATION_LOOKUP_API_KEY
@@ -27,6 +27,15 @@ else if (DATABASE_TYPE === "memory") {
     console.log("Connecting to generic memory database...")
     database = new NodeCache()
     console.log("Connected to memory database.")
+}
+else if (DATABASE_TYPE === "fauna"){
+    const faunaDBSecret = import.meta.env.NETLIFY ? process.meta.env.FAUNADB_SERVER_SECRET :import.meta.env.VITE_FAUNADB_SERVER_SECRET
+    if (faunaDBSecret === undefined){
+        throw new Error("No fauna DB secret specified!")
+    }
+    database = new Client({
+        secret: (faunaDBSecret)
+    })
 }
 else {
     console.warn(`Unknown database type "${DATABASE_TYPE}!"`)

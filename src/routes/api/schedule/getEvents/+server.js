@@ -9,7 +9,7 @@ import {
 } from "../../utilities.js";
 import {DateTime} from "luxon";
 import {extractEvents, retrieveSchedule} from "../../../../lib/scheduleRetrieval/retrieveSchedule.js";
-import {parseEvent} from "../../../../lib/scheduleRetrieval/parsing.js";
+import {parseEvent, parseEvents} from "../../../../lib/scheduleRetrieval/parsing.js";
 import {getNow} from "../../../../lib/utils.js";
 import {getCachedSchedule} from "../../../../lib/caching/caching.js";
 
@@ -51,28 +51,29 @@ export async function GET({request}){
                 const scheduleEvents = await extractEvents(schedule, optionalURLParameters.startDate, optionalURLParameters.endDate)
                 console.log("Events extracted.")
                 // The optional URL parameter &raw=false can be set if the user wishes to get raw data
-                if (urlParameters.get("raw") === false){
+                if (urlParameters.get("raw") === true){
                     console.log("Returning raw events (requested by the user)...")
                     return generateResponse(API_STATUS_OK, {
                         events: scheduleEvents,
                         message: `Note: Showing raw data. 
-                        Remove the \"raw\" URL paramter included in your request or change it to get parsed, pretty, data.`
+                        Remove the \"raw\" URL parameter included in your request or change it to get parsed, pretty, data.`
                     })
                 }
                 else {
-                    console.log("Parsing events...")
-                    const scheduleEventsParsed = {} // Group schedule events by day
-                    for (const scheduleEvent of scheduleEvents){
-                        const scheduleEventParsed = await parseEvent(scheduleEvent)
-                        // Add list for day if not added yet
-                        if (scheduleEventsParsed[scheduleEventParsed.date] === undefined){
-                            scheduleEventsParsed[scheduleEventParsed.date] = []
+                    console.log(`Parsing ${scheduleEvents.length} events...`)
+                    const scheduleEventsGrouped = {} // Group schedule events by day
+                    const scheduleEventsParsed = await parseEvents(scheduleEvents)
+                    console.log(`Got ${scheduleEventsParsed.length} parsed scehdule events back.`)
+                    // Group schedule events by date
+                    for (const scheduleEventParsed of scheduleEventsParsed){
+                        if (scheduleEventsGrouped[scheduleEventParsed.date] === undefined){
+                            scheduleEventsGrouped[scheduleEventParsed.date] = []
                         }
-                        scheduleEventsParsed[scheduleEventParsed.date].push(scheduleEventParsed)
+                        scheduleEventsGrouped[scheduleEventParsed.date].push(scheduleEventParsed)
                     }
                     console.log("Schedule events parsed. Returning them...")
                     return generateResponse(API_STATUS_OK, {
-                        events: scheduleEventsParsed
+                        events: scheduleEventsGrouped
                     })
                 }
             }

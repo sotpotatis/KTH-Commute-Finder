@@ -17,7 +17,7 @@ Shows the user's current schedule.
     const dispatch = createEventDispatcher() // ...and an event dispatcher
     const now = getNow()
     const scheduleSearchDates = {
-        startDate: now.minus({days: 7}).toISODate(), // TODO remove this after testing period is done
+        startDate: now.minus({days: 21}).toISODate(), // TODO remove this after testing period is done
         endDate: now.plus({days: 7}).toISODate()
     }
     $: scheduleEvents = null

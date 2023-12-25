@@ -47,6 +47,8 @@ A badge that shows a time for the time picker.
     $: showPopup = false // Needed to pass this down since we have nested elements
 </script>
 <div class="relative">
+<!-- Ensures working Svelte reactivity: really weird and quite unclean to do this, but it works :) -->
+<span class="hidden">{optimizeForHorizontalScroll}</span>
 <button class={passClassList(classesToApply)} on:click>
     {destinationArrival.toLocaleString(DateTime.TIME_24_SIMPLE)}
 </button>

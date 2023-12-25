@@ -72,7 +72,6 @@ export async function extractEvents(calendarData, startDate, endDate){
             if (calendarEvent.start !== undefined){
                 const eventStart = calendarTimeToLuxon(calendarEvent.start)
                 if (eventStart >= startDate && eventStart <= endDate){
-                    console.log(`Found relevant calendar event: `)
                     calendarEvents.push(calendarEvent)
                 }
             }
