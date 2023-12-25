@@ -36,8 +36,8 @@ export const PRODUCT_TYPE_TO_API_TYPE = {
 		type: 'lightRail',
 		slNumber: 4, // See above
 		name: {
-			swedish: 'Roslagsbanan',
-			english: 'Light rail'
+			swedish: 'Lokalbana och spårväg',
+			english: 'Light rail and tram'
 		}
 	},
 	SHP: {

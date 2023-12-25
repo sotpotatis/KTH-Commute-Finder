@@ -213,6 +213,7 @@ Searchs for trips and shows the available times.
 			settings.setObjectSetting('overridenWalkingTimes', walkingTimeSetting);
 			settings = settings;
 			overridenWalkingTimes = getOverridenWalkingTimes();
+			overridenWalkingTimes = overridenWalkingTimes;
 			walkTime = newTime;
 			console.log('Overriden walking time updated!', overridenWalkingTimes);
 			findTrips();

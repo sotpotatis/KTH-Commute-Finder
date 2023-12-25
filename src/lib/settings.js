@@ -6,7 +6,8 @@ import { removeItemFromList } from './utils.js';
 import { browser } from '$app/environment';
 const USER_SETTINGS_LOCAL_STORAGE_KEY = 'userSettings';
 const DEFAULT_USER_SETTINGS = {
-	scheduleURL: null
+	scheduleURL: null,
+	avoidedTravelMethods: []
 };
 /**
  * Gets all the settings that has been stored for a user.
