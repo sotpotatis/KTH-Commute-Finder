@@ -1,5 +1,8 @@
 <script>
 	import '../app.css'; // Import Tailwind CSS and other generated CSS
+	import { Settings } from 'luxon';
+	// Set default time zone to Swedish time zone
+	Settings.defaultZone = 'Europe/Stockholm';
 </script>
 
 <svelte:head>

@@ -47,18 +47,23 @@ Searchs for trips and shows the available times.
 	const getOverridenWalkingTimes = () => {
 		return settings.get('overridenWalkingTimes', {});
 	};
-	$: lastTripPart = selectedTrip !== null ? lastListElement(selectedTrip.parts) : null; // Get the last part of the set trip
 	// Handle which walk time that should be displayed to the user
 	$: overridenWalkingTimes = getOverridenWalkingTimes();
-	$: if (selectedTrip !== null) {
-		correctedWalkTime =
+	// Function to get overriden walking time from a certain trip
+	const getOverridenWalkingTimeForTrip = (trip) => {
+		const lastTripPart = lastListElement(trip.parts);
+		let foundCorrectedWalkTime =
 			overridenWalkingTimes[
 				`${lastTripPart.origin.slID}-${destinationRoom.information.location.buildingName}`
 			];
-		if (correctedWalkTime === undefined) {
+		if (foundCorrectedWalkTime === undefined) {
 			// If the user has not overriden the walking time
-			correctedWalkTime = null;
+			foundCorrectedWalkTime = null;
 		}
+		return foundCorrectedWalkTime;
+	};
+	$: if (selectedTrip !== null) {
+		correctedWalkTime = getOverridenWalkingTimeForTrip(selectedTrip);
 		walkTime =
 			correctedWalkTime === null
 				? Duration.fromISO(lastTripPart.walkTime).minutes
@@ -66,6 +71,23 @@ Searchs for trips and shows the available times.
 	} else {
 		walkTime = null;
 	}
+	// Function to select trip
+	const selectTrip = (foundTrip) => {
+		const newTripWalkTime = getOverridenWalkingTimeForTrip(foundTrip);
+		if (newTripWalkTime !== null) {
+			console.log(`Correcting data in trip to include overriden walking times...`);
+			const destinationStationArrivalTime = DateTime.fromISO(
+				foundTrip.parts[foundTrip.parts.length - 1].origin.time
+			);
+			const overridenArrivalTime = destinationStationArrivalTime
+				.plus({ minutes: newTripWalkTime })
+				.toISO();
+			foundTrip.arriveAt.destination = overridenArrivalTime;
+			foundTrip.parts[foundTrip.parts.length - 1].destination.time = overridenArrivalTime;
+			foundTrip.parts[foundTrip.parts.length - 1].walkTime = `PT${newTripWalkTime}M`;
+		}
+		selectedTrip = foundTrip;
+	};
 	// Define function to search for a trip
 	const findTrips = () => {
 		console.log('Searching for trip from: ', startStation, 'to', destinationRoom);
@@ -109,22 +131,23 @@ Searchs for trips and shows the available times.
 						console.warn('No trips were found!');
 					} else {
 						// Initially select the trip that arrives approximately 15 minutes before event start
-						selectedTrip = foundTrips[0];
+						let tripToSelect = foundTrips[0];
 						const targetTripArrivalTime = DateTime.fromISO(scheduleEvent.start)
 							.setZone('Europe/Stockholm')
 							.minus({ minutes: 15 });
 						for (const foundTrip of foundTrips) {
 							const foundTripArrivalTime = DateTime.fromISO(
-								selectedTrip.arriveAt.destination
+								tripToSelect.arriveAt.destination
 							).setZone('Europe/Stockholm');
 							if (targetTripArrivalTime >= foundTripArrivalTime) {
 								console.log('Found appropriate middle trip!');
-								selectedTrip = foundTrip;
+								tripToSelect = foundTrip;
 							}
 						}
-						if (selectedTrip === foundTrips[0]) {
+						if (tripToSelect === foundTrips[0]) {
 							console.warn("Looks like I didn't find an appropriate middle trip.");
 						}
+						selectTrip(tripToSelect);
 					}
 				} else {
 					console.warn('Request failed with response:', responseData);
@@ -269,7 +292,7 @@ Searchs for trips and shows the available times.
 					tripData={foundTrip}
 					scheduleEventStart={DateTime.fromISO(scheduleEvent.start)}
 					on:click={() => {
-						selectedTrip = foundTrip;
+						selectTrip(foundTrip);
 						console.log('Selected trip updated to: ', selectedTrip);
 					}}
 				/>

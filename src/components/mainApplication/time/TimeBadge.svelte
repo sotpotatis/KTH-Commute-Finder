@@ -27,6 +27,9 @@ A badge that shows a time for the time picker.
 		// Use user-specified walking time if defined
 		destinationArrival = destinationStationArrival.plus({ minutes: overridenWalkingTime });
 	}
+	if (destinationArrival !== null) {
+		destinationArrival.setZone('Europe/Stockholm');
+	}
 	// Can be used to show warnings if the time is after
 	// the event start time
 	$: isAfterStartTime = destinationArrival > scheduleEventStart.plus({ minutes: 15 });
@@ -46,7 +49,7 @@ A badge that shows a time for the time picker.
 	<!-- Ensures working Svelte reactivity: really weird and quite unclean to do this, but it works :) -->
 	<span class="hidden">{optimizeForHorizontalScroll}</span>
 	<button class={passClassList(classesToApply)} on:click>
-		{destinationArrival.setZone('Europe/Stockholm').toLocaleString(DateTime.TIME_24_SIMPLE)}
+		{destinationArrival.toLocaleString(DateTime.TIME_24_SIMPLE)}
 	</button>
 	<!-- Add warnings -->
 	{#if isAfterStartTime || isAq}
