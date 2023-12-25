@@ -104,6 +104,11 @@ Shows the user's current schedule.
 
 {#if loading && !error}
 	<LoadingSpinner size="big" message="Hämtar ditt schema..." />
+	<p>
+		<small
+			>(Om detta är första gången ditt schema hämtas på ett tag, kan detta ta upp till 10 sekunder)</small
+		>
+	</p>
 {:else if error}
 	{#if scheduleEventDays.length === 0}
 		<!-- If no schedule events were found -->

@@ -37,8 +37,10 @@ with selecting the location that the user wants to go to.
 {#if availableRooms.length > 1}
 	<h1 class="text-3xl font-bold py-3">Vilket rum?</h1>
 	<p>Detta schema-event har flera rum. Vilket vill du vara i?</p>
-	<p class="text-small">
-		Osäker? Välj bara ett godtyckligt rum som ligger i den byggnad som du vill gå till.
+	<p>
+		<small>
+			Osäker? Välj bara ett godtyckligt rum som ligger i den byggnad som du vill gå till.</small
+		>
 	</p>
 {/if}
 {#if dataNotAvailableForAnyRoom}

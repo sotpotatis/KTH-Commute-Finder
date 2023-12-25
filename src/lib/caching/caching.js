@@ -72,7 +72,7 @@ export async function getCachedKeys(keyType, keys, updateInterval) {
 	if (keys.length === undefined) {
 		keys = [keys];
 	}
-	console.log(`Querying database for keys ${keys}...`);
+	console.log(`Querying database (${DATABASE_TYPE}) for keys ${keys}...`);
 	const keySearchResults = []; // See the return for information about this array format
 	let keyData = null;
 	let keyReference = null;
