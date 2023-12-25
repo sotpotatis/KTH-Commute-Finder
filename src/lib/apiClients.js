@@ -34,9 +34,7 @@ if (DATABASE_TYPE === 'deta') {
 	database = new NodeCache();
 	console.log('Connected to memory database.');
 } else if (DATABASE_TYPE === 'fauna') {
-	const faunaDBSecret = import.meta.env.NETLIFY
-		? process.meta.env.FAUNADB_SERVER_SECRET
-		: import.meta.env.VITE_FAUNADB_SERVER_SECRET;
+	const faunaDBSecret = import.meta.env.VITE_FAUNADB_SERVER_SECRET;
 	if (faunaDBSecret === undefined) {
 		throw new Error('No fauna DB secret specified!');
 	}
