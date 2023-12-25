@@ -210,7 +210,10 @@ Searchs for trips and shows the available times.
 			const lastStationSlID = lastListElement(selectedTrip.parts).origin.slID;
 			const destinationBuilding = destinationRoom.information.location.buildingName;
 			walkingTimeSetting[`${lastStationSlID}-${destinationBuilding}`] = newTime;
-			settings.setObjectSetting('overridenWalkingTimes', walkingTimeSetting);
+			overridenWalkingTimes = settings.setObjectSetting(
+				'overridenWalkingTimes',
+				walkingTimeSetting
+			);
 			settings = settings;
 			overridenWalkingTimes = getOverridenWalkingTimes();
 			overridenWalkingTimes = overridenWalkingTimes;

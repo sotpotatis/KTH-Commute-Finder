@@ -44,7 +44,8 @@ as asks for details. -->
 			description: 'Välj vilka färdmedel du vill resa med.',
 			isSkippable: true,
 			linkedSettingKey: 'avoidedTravelMethods',
-			settingValueOnSkip: []
+			settingValueOnSkip: [],
+			defaultSettingsValue: []
 		},
 		{
 			id: 'final_step',
@@ -79,6 +80,19 @@ as asks for details. -->
 		}
 		if (setupStep < TOTAL_SETUP_STEPS) {
 			console.log('Going to the next step...');
+			// Set default setting value if defined
+			if (
+				activeSetupScreen.linkedSettingKey !== undefined &&
+				activeSetupScreen.defaultSettingsValue !== undefined
+			) {
+				if (settings.get(activeSetupScreen.linkedSettingKey) === null) {
+					console.log(`Setting ${activeSetupScreen.linkedSettingKey} to default value...`);
+					settings.setSetting(
+						activeSetupScreen.linkedSettingKey,
+						activeSetupScreen.defaultSettingsValue
+					);
+				}
+			}
 			setupStep += 1;
 		} else {
 			throw new Error(

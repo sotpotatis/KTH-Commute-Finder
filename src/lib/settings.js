@@ -162,6 +162,7 @@ export class Settings {
 	 * then the key is added to the object. Otherwise, a new object is created.
 	 * @param settingKey The setting key to set.
 	 * @param keysToAppend The key(s) to set for the object.
+	 * @returns The value that was changed.
 	 */
 	setObjectSetting(settingKey, keysToAppend) {
 		let settingValue = this.get(settingKey);
@@ -173,5 +174,6 @@ export class Settings {
 			settingValue[key] = value;
 		}
 		setSetting(settingKey, settingValue);
+		return settingValue;
 	}
 }

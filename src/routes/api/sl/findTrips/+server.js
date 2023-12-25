@@ -359,8 +359,12 @@ export async function GET({ request }) {
 				'Europe/Stockholm'
 			);
 			// Find out search boundaries
-			const latestArriveTime = arriveTime.plus({ hours: hoursAfterArrivalTime });
-			const earliestArriveTime = arriveTime.minus({ hours: hoursBeforeArrivalTime });
+			const latestArriveTime = arriveTime
+				.plus({ hours: hoursAfterArrivalTime })
+				.setZone('Europe/Stockholm');
+			const earliestArriveTime = arriveTime
+				.minus({ hours: hoursBeforeArrivalTime })
+				.setZone('Europe/Stockholm');
 			let searchArriveTime = earliestArriveTime;
 			const allParsedTrips = [];
 			let i = 1;
