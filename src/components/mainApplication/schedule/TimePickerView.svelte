@@ -66,7 +66,7 @@ Searchs for trips and shows the available times.
 		correctedWalkTime = getOverridenWalkingTimeForTrip(selectedTrip);
 		walkTime =
 			correctedWalkTime === null
-				? Duration.fromISO(lastTripPart.walkTime).minutes
+				? Duration.fromISO(lastListElement(selectedTrip.parts).walkTime).minutes
 				: correctedWalkTime;
 	} else {
 		walkTime = null;
