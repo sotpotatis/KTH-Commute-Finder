@@ -19,7 +19,11 @@ import {
 	Station
 } from '../../../../lib/slAPI/reseplanerareClasses.js';
 import { DateTime, Duration } from 'luxon';
-import {API_TRAVEL_METHOD_TYPES, NoTripsFoundError, PRODUCT_TYPE_TO_API_TYPE} from '../../../../lib/slAPI/sl.js';
+import {
+	API_TRAVEL_METHOD_TYPES,
+	NoTripsFoundError,
+	PRODUCT_TYPE_TO_API_TYPE
+} from '../../../../lib/slAPI/sl.js';
 const UNPARSEABLE_TRIP_RESPONSE = () => {
 	return generateResponse(
 		API_STATUS_ERROR,
@@ -31,7 +35,7 @@ const UNPARSEABLE_TRIP_RESPONSE = () => {
 	);
 };
 
-const VALID_API_TRAVEL_METHODS = Object.keys(API_TRAVEL_METHOD_TYPES)
+const VALID_API_TRAVEL_METHODS = Object.keys(API_TRAVEL_METHOD_TYPES);
 
 // Define some parsing functions
 /**
@@ -127,7 +131,7 @@ function tripPartToJson(tripPart) {
 	if (tripPart.type === 'JNY') {
 		// Journey - travel from one station to another
 		parsedTrip.type = 'publicTransport';
-		parsedTrip.messages = []
+		parsedTrip.messages = [];
 		if (tripPart.Product !== undefined) {
 			let tripProduct = tripProductToJson(tripPart);
 			if (tripProduct === null) {
@@ -142,16 +146,16 @@ function tripPartToJson(tripPart) {
 		// Add messages if found for this trip part.
 		// These messages includes information about any trip deviations,
 		// service disruptions, etc.
-		if (tripPart.Messages !== undefined){
-			for (const message of tripPart.Messages.Message){
-					if (!parsedTrip.messages.includes(message)){
-						parsedTrip.messages.messages.push({
-							title: message.head,
-							body: message.text,
-							priority: message.priority !== undefined ? message.priority: 0 // I can image this is not always included
-						})
-					}
+		if (tripPart.Messages !== undefined) {
+			for (const message of tripPart.Messages.Message) {
+				if (!parsedTrip.messages.includes(message)) {
+					parsedTrip.messages.messages.push({
+						title: message.head,
+						body: message.text,
+						priority: message.priority !== undefined ? message.priority : 0 // I can image this is not always included
+					});
 				}
+			}
 		}
 	} else if (tripPart.type === 'WALK') {
 		// Walk - well, walk from one place to another
@@ -174,7 +178,7 @@ function tripPartToJson(tripPart) {
  * return.
  * @return {*} The parsed trip as a object.
  */
-function parseTrip(rawTripData, overriddenWalkingTime=null) {
+function parseTrip(rawTripData, overriddenWalkingTime = null) {
 	const tripData = {
 		totalDuration: Duration.fromISO(rawTripData.duration).toISO(),
 		parts: [],
@@ -188,7 +192,7 @@ function parseTrip(rawTripData, overriddenWalkingTime=null) {
 		// parsedTripPart will be null if the conversion failed
 		if (parsedTripPart === null) {
 			console.warn(`Something was not parseable along the process! Returning error...`);
-			return null
+			return null;
 		}
 		if (i === tripParts.length - 1 && parsedTripPart.type !== 'walk') {
 			console.warn(
@@ -196,7 +200,7 @@ function parseTrip(rawTripData, overriddenWalkingTime=null) {
 					parsedTripPart
 				)}`
 			);
-			return null
+			return null;
 		}
 		// Join together walks. The SL API likes to split walks for some reason.
 		// Here, we ensure that we get multiple "walks" together
@@ -215,21 +219,23 @@ function parseTrip(rawTripData, overriddenWalkingTime=null) {
 		}
 	}
 	// Override walking time if set
-	const lastTripPartIndex = tripData.parts.length - 1
+	const lastTripPartIndex = tripData.parts.length - 1;
 	if (overriddenWalkingTime !== null) {
 		console.log('Overriding walking time of last trip entry.');
 		// Update the walk time as well as the time for the final destination
 		tripData.parts[lastTripPartIndex].walkTime = Duration.fromObject({
 			minutes: overriddenWalkingTime
 		}).toISO();
-		tripData.parts[lastTripPartIndex].destination.time = tripData.parts[lastTripPartIndex-1].destination.time.plus({minutes: overriddenWalkingTime})
+		tripData.parts[lastTripPartIndex].destination.time = tripData.parts[
+			lastTripPartIndex - 1
+		].destination.time.plus({ minutes: overriddenWalkingTime });
 	}
-	const lastTripPart = tripData.parts[lastTripPartIndex]
+	const lastTripPart = tripData.parts[lastTripPartIndex];
 	tripData.arriveAt = {
 		station: lastTripPart.origin.time,
 		destination: lastTripPart.destination.time
-	} // Add when the user is expected to arrive at the station and at the destionation
-	return tripData
+	}; // Add when the user is expected to arrive at the station and at the destionation
+	return tripData;
 }
 /**
  * Parse a list of trips as returned from the SL API.
@@ -245,9 +251,9 @@ function parseTrips(rawTripsData, overriddenWalkingTime) {
 	for (const rawTripData of rawTripsData) {
 		const tripData = parseTrip(rawTripData);
 		// We get null back if the trip was not parseable.
-		if (tripData === null){
-			console.error(`The trip ${JSON.stringify(tripData)} was not parseable!`)
-			return null
+		if (tripData === null) {
+			console.error(`The trip ${JSON.stringify(tripData)} was not parseable!`);
+			return null;
 		}
 		parsedTrips.push(tripData);
 	}
@@ -292,12 +298,14 @@ export async function GET({ request }) {
 				// Convert parameter to a list of numbers
 				travelMethods = urlParameters.get('includedTravelMethods').split(',');
 				// Ensure travel methods are valid
-				for (const travelMethod of travelMethods){
-					if (!VALID_API_TRAVEL_METHODS.includes(travelMethod)){
+				for (const travelMethod of travelMethods) {
+					if (!VALID_API_TRAVEL_METHODS.includes(travelMethod)) {
 						console.log('Invalid overridden walking time. Returning error...');
-							return generateResponse(API_STATUS_ERROR, {
-								message: `${travelMethod} is not a valid travel method. Accepted travel methiods are: ${VALID_API_TRAVEL_METHODS.join(",")}.`
-							});
+						return generateResponse(API_STATUS_ERROR, {
+							message: `${travelMethod} is not a valid travel method. Accepted travel methiods are: ${VALID_API_TRAVEL_METHODS.join(
+								','
+							)}.`
+						});
 					}
 				}
 			}
@@ -354,25 +362,23 @@ export async function GET({ request }) {
 			const latestArriveTime = arriveTime.plus({ hours: hoursAfterArrivalTime });
 			const earliestArriveTime = arriveTime.minus({ hours: hoursBeforeArrivalTime });
 			let searchArriveTime = earliestArriveTime;
-			const allParsedTrips = []
-			let i = 1
+			const allParsedTrips = [];
+			let i = 1;
 			while (searchArriveTime < latestArriveTime) {
 				if (i > 15) {
 					// avoid spamming the SL API due to recursion
 					console.error('Too many SL requests!');
 					// We still return something if we are past the arrive time
-					if (searchArriveTime >= arriveTime){
-						console.log("Still past arrive time. Returning data...")
-						break
-					}
-					else {
-						console.log("Not past arrive time, returning error.")
+					if (searchArriveTime >= arriveTime) {
+						console.log('Still past arrive time. Returning data...');
+						break;
+					} else {
+						console.log('Not past arrive time, returning error.');
 						return GENERIC_SERVER_ERROR();
 					}
-
 				}
 				console.log(`Requesting reseplanerare with time: ${searchArriveTime}`);
-				let parsedTrips = []
+				let parsedTrips = [];
 				try {
 					const tripSuggestionsData = await slAPI.reseplanerare(
 						[new Station(POINT_TYPE_ORIGIN, urlParameters.get('startStationId')), destination],
@@ -385,24 +391,29 @@ export async function GET({ request }) {
 						true,
 						minChangeTime,
 						maxChangeTime
-					)
-					parsedTrips = parseTrips(tripSuggestionsData.Trip, overriddenWalkingTime)
-					}
-				catch (NoTripsFoundError) {
-					console.log("No trips found for search!")
-					return generateResponse(API_STATUS_OK, {trips: [], message: "SL's API could not find a trip for your request. Please try to refine your search parameters."})
+					);
+					parsedTrips = parseTrips(tripSuggestionsData.Trip, overriddenWalkingTime);
+				} catch (NoTripsFoundError) {
+					console.log('No trips found for search!');
+					return generateResponse(API_STATUS_OK, {
+						trips: [],
+						message:
+							"SL's API could not find a trip for your request. Please try to refine your search parameters."
+					});
 				}
-				if (parsedTrips === null){
-					return UNPARSEABLE_TRIP_RESPONSE()
+				if (parsedTrips === null) {
+					return UNPARSEABLE_TRIP_RESPONSE();
 				}
-				searchArriveTime = parsedTrips[parsedTrips.length-1].arriveAt.station // Increase search time
-				console.log(`Last arrival time of returned trips: ${searchArriveTime.toISOTime()}`)
-				allParsedTrips.push(...parsedTrips)
-				console.log("Done with one parsing round, maybe doing another...")
-				i += 1
+				searchArriveTime = parsedTrips[parsedTrips.length - 1].arriveAt.station; // Increase search time
+				console.log(`Last arrival time of returned trips: ${searchArriveTime.toISOTime()}`);
+				allParsedTrips.push(...parsedTrips);
+				console.log('Done with one parsing round, maybe doing another...');
+				i += 1;
 			}
 			// Remove any possible duplicates
-			allParsedTrips.filter((element, elementIndex)=>{return (allParsedTrips.indexOf(element) === elementIndex)})
+			allParsedTrips.filter((element, elementIndex) => {
+				return allParsedTrips.indexOf(element) === elementIndex;
+			});
 			return generateResponse(API_STATUS_OK, { trips: allParsedTrips });
 		} catch (e) {
 			console.error(`Something went wrong when finding trips: ${e}. Returning error...`, e);

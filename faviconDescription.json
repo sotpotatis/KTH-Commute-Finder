@@ -1,5 +1,3 @@
-
-
 {
 	"masterPicture": "./static/project_logo.png",
 	"iconsPath": "/",
@@ -60,4 +58,3 @@
 		"usePathAsIs": false
 	}
 }
-

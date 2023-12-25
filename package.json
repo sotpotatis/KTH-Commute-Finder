@@ -14,8 +14,7 @@
 	},
 	"devDependencies": {
 		"cli-real-favicon": "^0.0.8",
-		"prettier": "^2.8.0",
-		"prettier-plugin-svelte": "^2.10.1"
+		"prettier": "^3.1.1"
 	},
 	"dependencies": {
 		"@iconify/svelte": "^3.1.4",
@@ -34,6 +33,7 @@
 		"node-cache": "^5.1.2",
 		"node-ical": "^0.16.1",
 		"postcss": "^8.4.29",
+		"prettier-plugin-svelte": "^3.1.2",
 		"promise-abortable": "^1.2.6",
 		"sl-api": "^1.0.4",
 		"svelte": "^4.0.5",

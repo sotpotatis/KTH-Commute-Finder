@@ -4,7 +4,7 @@ To be nice to KTH's servers, we are caching a couple of things in the applicatio
 
 1. **Schedules**. A user's schedule is only re-synced a maximum of times per hour.
 2. **Room information**. Once we have a response for a room from the KTH room API, we know what we want to know. We only wa t to
-occasionally pull this data if it is interesting.
+   occasionally pull this data if it is interesting.
 
 ### Data storage used for caching
 
