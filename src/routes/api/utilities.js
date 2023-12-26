@@ -1,5 +1,9 @@
 /* utilities.js
 Contains various utilities to generate API responses. */
+import { Settings } from 'luxon';
+// Set default time zone to Swedish time zone. Great way to do it here
+// since all servers import this code!
+Settings.defaultZone = 'Europe/Stockholm';
 // Statuses
 export const API_STATUS_OK = 'ok';
 export const API_STATUS_ERROR = 'error';

@@ -418,6 +418,16 @@ export async function GET({ request }) {
 			allParsedTrips.filter((element, elementIndex) => {
 				return allParsedTrips.indexOf(element) === elementIndex;
 			});
+			// Sort trips by arrival date
+			allParsedTrips.sort((a, b) => {
+				if (a.arriveAt.station > b.arriveAt.station) {
+					return 1;
+				} else if (a.arriveAt.station === b.arriveAt.station) {
+					return 0;
+				} else {
+					return -1;
+				}
+			});
 			return generateResponse(API_STATUS_OK, { trips: allParsedTrips });
 		} catch (e) {
 			console.error(`Something went wrong when finding trips: ${e}. Returning error...`, e);

@@ -49,7 +49,7 @@ A badge that shows a time for the time picker.
 	<!-- Ensures working Svelte reactivity: really weird and quite unclean to do this, but it works :) -->
 	<span class="hidden">{optimizeForHorizontalScroll}</span>
 	<button class={passClassList(classesToApply)} on:click>
-		{destinationArrival.toLocaleString(DateTime.TIME_24_SIMPLE)}
+		{destinationArrival.toFormat('HH:mm')}
 	</button>
 	<!-- Add warnings -->
 	{#if isAfterStartTime || isAq}

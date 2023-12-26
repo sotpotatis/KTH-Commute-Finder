@@ -13,8 +13,8 @@ Shows the trip that a user has picked, with all data and everything.-->
 	$: lastTripPart = lastListElement(tripData.parts);
 	$: departTime = DateTime.fromISO(firstTripPart.origin.time);
 	$: arrivalTime = DateTime.fromISO(lastTripPart.destination.time);
-	$: departTimeText = `Avgår ${departTime.toLocaleString(DateTime.TIME_24_SIMPLE)}`;
-	$: arrivalTimeText = `Framme ${arrivalTime.toLocaleString(DateTime.TIME_24_SIMPLE)}`;
+	$: departTimeText = `Avgår ${departTime.toFormat('HH:mm')}`;
+	$: arrivalTimeText = `Framme ${arrivalTime.toFormat('HH:mm')}`;
 	$: sortedTripMessages = tripData.messages.sort((a, b) => {
 		// Sort messages based on their priority
 		return b.priority - a.priority;
