@@ -6,11 +6,15 @@ Allows the user to change the walk time for a certain trip.
 	import IconButton from '../../generic/IconButton.svelte';
 	import { Settings } from '../../../lib/settings.js';
 	export let currentWalkTime; // The currently set walking time
-	export let buildingName; // The building that the event is related to
+	export let destinationLocation; // The building that the event is related to
 	export let walkOrigin; // The station that the user is travelling from
 	$: editing = false; // If the walk time is being edited or not
 	// Create text for the selected walk time
 	$: walkTimePrefix = currentWalkTime !== 1 ? ' minuter' : ' minut';
+	$: buildingName = destinationLocation.buildingName;
+	$: destinationLatitude = destinationLocation.latitude;
+	$: destinationLongitude = destinationLocation.longitude;
+
 	const dispatch = createEventDispatcher();
 	// Create interface for settings
 	const settings = new Settings().getProxy();
@@ -61,3 +65,20 @@ Allows the user to change the walk time for a certain trip.
 	promenad
 </h1>
 <p class="py-3">(gå från {walkOrigin.name})</p>
+<!-- Add a Google Maps link to navigate to the location that the user has chosen -->
+<IconButton
+	size="base"
+	color="underline"
+	extraClasses={['flex flex-row gap-x-2 max-w-full']}
+	iconName="akar-icons:link-out"
+	on:click={() => {
+		window.open(
+			`https://www.google.com/maps?q=${destinationLatitude},${destinationLongitude}`,
+			'_blank'
+		);
+	}}
+>
+	<svelte:fragment slot="buttonContent">
+		<span>Visa på karta</span>
+	</svelte:fragment>
+</IconButton>

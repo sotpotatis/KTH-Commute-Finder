@@ -21,7 +21,8 @@ What the name says. A clickable button. -->
 		yellow: 'bg-yellow-500 ring-yellow-700',
 		gray: 'bg-gray-400 ring-gray-500',
 		indigo: 'bg-indigo-500 ring-indigo-700',
-		red: 'bg-red-500 ring-red-700'
+		red: 'bg-red-500 ring-red-700',
+		link: 'underline'
 	};
 	// Define font sizes
 	const SIZES_TO_CLASSES = {
@@ -46,4 +47,5 @@ What the name says. A clickable button. -->
 <!-- Create button  and forward on:click event. -->
 <button type={buttonType} class={passClassList(classesToApply)} on:click>
 	<Icon icon={iconName} />
+	<slot name="buttonContent" />
 </button>

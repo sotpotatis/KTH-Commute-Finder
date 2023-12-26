@@ -220,7 +220,7 @@ Searchs for trips and shows the available times.
 {:else if foundTrips !== null && selectedTrip !== null}
 	<!-- Render the found walk time and allow the user to change it if needed -->
 	<WalkTimeSetter
-		buildingName={destinationRoom.information.location.buildingName}
+		destinationLocation={destinationRoom.information.location}
 		walkOrigin={lastListElement(selectedTrip.parts).origin}
 		currentWalkTime={walkTime}
 		on:overriddenWalkingTimeUpdated={(event) => {

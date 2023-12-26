@@ -366,7 +366,7 @@ export async function GET({ request }) {
 				.minus({ hours: hoursBeforeArrivalTime })
 				.setZone('Europe/Stockholm');
 			let searchArriveTime = earliestArriveTime;
-			const allParsedTrips = [];
+			let allParsedTrips = [];
 			let i = 1;
 			while (searchArriveTime < latestArriveTime) {
 				if (i > 15) {
@@ -414,21 +414,21 @@ export async function GET({ request }) {
 				console.log('Done with one parsing round, maybe doing another...');
 				i += 1;
 			}
-			// Remove any possible duplicates
-			allParsedTrips.filter((element, elementIndex) => {
-				return allParsedTrips.indexOf(element) === elementIndex;
-			});
 			// Sort trips by arrival date
 			allParsedTrips.sort((a, b) => {
-				if (a.arriveAt.station > b.arriveAt.station) {
-					return 1;
-				} else if (a.arriveAt.station === b.arriveAt.station) {
-					return 0;
-				} else {
-					return -1;
-				}
+				return (DateTime.fromISO(a.arriveAt.destination) - DateTime.fromISO(b.arriveAt.destination))
+					.minutes;
 			});
-			return generateResponse(API_STATUS_OK, { trips: allParsedTrips });
+			// Remove any possible duplicates
+			const finalParsedTrips = [];
+			const seenParsedTrips = [];
+			for (const parsedTrip of allParsedTrips) {
+				if (!seenParsedTrips.includes(JSON.stringify(parsedTrip))) {
+					finalParsedTrips.push(parsedTrip);
+					seenParsedTrips.push(JSON.stringify(parsedTrip));
+				}
+			}
+			return generateResponse(API_STATUS_OK, { trips: finalParsedTrips });
 		} catch (e) {
 			console.error(`Something went wrong when finding trips: ${e}. Returning error...`, e);
 			return GENERIC_SERVER_ERROR();
